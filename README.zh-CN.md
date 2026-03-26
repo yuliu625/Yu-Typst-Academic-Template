@@ -1,42 +1,72 @@
 # Typst Academic Template
-我构建了一个结构清晰、内容易于复用的**Typst 项目模板**，旨在帮助你更高效地撰写学术论文、报告或进行学术演讲。
-
-## 设计理念
-- **结构化管理:** 借鉴 LaTeX 项目的经验，我将不同类型的内容(如章节、图表、算法等)分门别类地组织，避免单个 `main.typ` 文件过长而难以控制。
-- **内容复用:** 你可以轻松地在不同项目间复用已有的内容。例如，将整个 `contents` 目录复制到新的项目中，或者在演示文稿中直接调用已构建的图表和算法。
-- **易于维护:** 清晰的文件结构让项目更易于维护和更新。
+这是一个遵循“约定优于配置”思想的 **Typst 工程化模板**。其核心目标是通过**层级隔离**，实现学术资产（图表、算法、文字）在不同出版格式（Typst Conf/Thesis Styles）间的无缝迁移与快速复用。
 
 
-### 项目结构
+## 📂 项目结构
+本项目将论文构建视为一条自动化流水线，每一层处理特定的任务，确保**内容 (Content)** 与 **表现形式 (Appearance)** 完全解耦。
+
 ```bash
-.
-├── main.tex                 # 主文件，通过 input 导入 contents 中的内容
-└── contents/
-    ├── sections/            # 论文的主要章节内容（如引言、方法、实验等）
-    ├── references/          # 参考文献文件（.bib）
-    ├── figures/             # 图片文件及其对应的 Typst 代码
-    │   ├── original_figures/  # （可选）存放原始图片文件（如 .svg, .ai 等）
-    │   └── ...
-    ├── tables/              # 表格文件及其对应的 Typst 代码
-    └── algorithms/          # 算法伪代码文件
+# 1. 原始资源层 (Raw Assets)
+├── assets/                 # 存放原始实验数据 (SVG, PDF, PNG, Python Plot, Excel)
+│
+# 2. 组件适配层 (Component Bridge)
+├── components/             # 过渡层：将 Assets 包装为 Typst 可调用的函数/对象
+│   ├── figures/            # 封装 figure(), caption, label 的独立代码块
+│   ├── tables/             # 封装好的表格逻辑（基于 tablex 或原生 table）
+│   └── algorithms/         # 封装好的伪代码块
+│
+# 3. 语义内容层 (Semantic Contents)
+├── contents/               # 纯文字内容，不涉及具体的排版样式
+│   ├── modules/            # 论文主体章节 (Introduction, Method, etc.)
+│   ├── appendix/           # 附录内容
+│   ├── references/         # 参考文献库
+│   └── structure.typ       # 逻辑组织层，通过 #include 编排各模块
+│
+# 4. 环境配置层 (Global Configs)
+├── configs/                # 全局变量、自定义函数、第三方包引用 (import)
+│
+# 5. 表现/输出层 (Presentation Layer)
+├── main.typ                # 最终入口，调用出版社提供的 Show Rules (如 #show ethz: ..)
+│
+# 6. 辅助工具层 (Support & Ops)
+├── scripts/                # 自动化处理脚本（数据转 Typst 表格等）
+└── backups/                # 容错层：为不熟悉 Git 的合作者保留的旧版内容备份
 ```
 
-### 使用场景
-1. **新建项目:** 将整个仓库克隆(`git clone`)到本地，然后开始编辑`contents`目录中的文件。
-1. **切换模板:**
-   - 当你需要提交到不同会议或期刊时，只需将整个 `contents`目录复制到新的模板项目中。
-   - 在新模板的`main.typ`文件中，使用`#import "contents/sections/specific_section.typ"`等命令导入所需的内容。
-1. **学术演讲:**
-   - 构建演示文稿时，可以直接引用`figures`、`tables`或`algorithms`目录中已有的文件，无需重新编写。
+
+## 🌟 核心设计哲学
+### 约定优于配置
+通过预设的文件夹命名结构，无需在 `main.typ` 中编写复杂的路径查找逻辑。只要将内容放入对应的 `modules`，即可通过标准的 `#include` 或 `#import` 进行调用，极大降低了在不同模板间迁移时的配置成本。
+
+### 模块化隔离
+`contents/modules` 中的内容是中性的:
+- **短文/会议**: 模块内容直接对应 `= Section`。
+- **长文/学位论文**: 模块内容对应 `= Chapter`。
+Typst 的标题层级自动提升特性使得这种转换非常自然。
+
+### 过渡层设计
+这是本模板的精髓。`components` 作为 `assets` 与 `contents` 之间的桥梁：
+- **修改友好**: 如果图片需要从 `.pdf` 换成 `.svg`，只需在 `components` 的封装函数中修改路径，无需触碰正文 `contents`。
+- **多处调用**: 同一个图表组件可以同时被论文 `main.typ` 和演示文稿 `slides.typ` (Polylux) 引用。
+
+### 协作兼容性
+考虑到学术合作中并非所有成员都熟练使用 Git，`backups` 文件夹提供了一个物理存储空间，用于存放合作者修改后的旧稿或 Word 转出的草堆，确保在版本回溯时的人工容错。
 
 
-## 更多说明
-1. **参考文献:** Typst原生支持多种参考文献格式，如`BibTeX`、`YAML`等。你可以将`.bib`或`.yaml`文件放置在`contents/references`目录中。
-1. **图片:** 建议在`figures`目录下创建`original_figures`子目录，用于存放图片的原始编辑文件（如`.svg`、`.ai`等），以便后续修改。你可以在每个图片文件中直接包含图片和对应的caption，然后在`main.typ`中直接`#import`导入。
-1. **算法:** Typst 社区提供了丰富的算法宏包，例如 `typst-algorithms`，可以根据你的需求自由选择和调整。我的倾向是继续使用 LaTeX 的公式以保证通用性，你可以参考使用 `mitex` ，一个可以在typ文件中写LaTeX语法的公式的工具。
+## 💡 使用指南
+1.  **准备素材**: 将实验原始图表放入 `assets`。
+2.  **编写组件**: 在 `components/` 中定义对应的 Typst 函数，引用 `assets` 中的导出图。
+3.  **撰写内容**: 在 `contents/modules/` 中完成文字叙述，并通过标签或函数调用 `components` 中的组件。
+4.  **注入容器**: 在 `main.typ` 中通过 `#include "contents/structure.typ"` 完成整篇论文的组装。
 
 
-## 其他项目
+## 🚀 快速切换投稿流
+当需要更换投稿期刊（例如从 IEEE 换到 ACM）时，你的工作流仅需两步：
+1. **替换 `main.typ` 的引用**: 修改开头 `#import "@preview/..."` 为目标期刊的包。
+2. **重定向内容**: 在新的 `show` 规则下，重新挂载你的 `structure.typ` 内容资产。
+
+
+## 🔗 关联项目
 对于常规情况，你可以考虑我的另一个项目[Latex-Academic-Template](https://github.com/yuliu625/Yu-Latex-Academic-Template)。这个项目是基于LaTeX构建的，是现代学术写作的已长久存在并且可预见依然会持续使用的标准，并且LaTeX社区的支持和广泛程度也比Typst更大。
 
 **Typst** 是一种更现代、高效的排版工具，但目前生态仍在发展中。而 **LaTeX** 在学术界的地位依然不可动摇，社区支持和广泛程度都远超 Typst。
