@@ -1,45 +1,75 @@
 # Typst Academic Template
-I created a **Typst project template** with a clear and structured design, making it easy to reuse content for academic papers, reports, or presentations.
+This is a **Typst Engineering Template** based on the "Convention over Configuration" philosophy. Its core objective is to achieve seamless migration and rapid reuse of academic assets (figures, algorithms, text) across different publication formats (Typst Conf/Thesis Styles) through **layer isolation**.
 
 
-## Design Philosophy
-- **Structured Management:** Drawing from LaTeX project experiences, I organized different content types (e.g., chapters, figures, algorithms) into separate directories. This prevents a single `main.typ` file from becoming too long and unmanageable.
-- **Content Reusability:** You can easily reuse existing content across different projects. For example, you can copy the entire `contents` directory to a new project or directly use pre-built figures and algorithms in a presentation.
-- **Easy to Maintain:** A clear file structure makes the project simpler to maintain and update.
+## 📂 Project Structure
+This project treats paper construction as an automated pipeline, where each layer handles specific tasks to ensure total decoupling of **Content** and **Appearance**.
 
-### Project Structure
 ```bash
-.
-├── main.typ                 # Main file, which inputs content from the contents/ directory
-└── contents/
-    ├── sections/            # Main paper sections (e.g., Introduction, Methods, Experiments)
-    ├── references/          # Reference files (.bib)
-    ├── figures/             # Figure files and their corresponding Typst code
-    │   ├── original_figures/  # (Optional) For original image files (e.g., .svg, .ai, etc.)
-    │   └── ...
-    ├── tables/              # Table files and their corresponding Typst code
-    └── algorithms/          # Pseudocode files for algorithms
+# 1. Raw Assets Layer
+├── assets/                 # Raw experimental data (SVG, PDF, PNG, Python Plots, Excel)
+│
+# 2. Component Bridge Layer
+├── components/             # Transition layer: Wrapping assets into Typst-callable functions/objects
+│   ├── figures/            # Independent code blocks for figure(), caption, and label
+│   ├── tables/             # Table logic (based on tablex or native table)
+│   └── algorithms/         # Wrapped pseudo-code blocks
+│
+# 3. Semantic Content Layer
+├── contents/               # Pure text content, independent of specific layout styles
+│   ├── modules/            # Main paper sections (Introduction, Method, etc.)
+│   ├── appendix/           # Appendix content
+│   ├── references/         # Bibliography/References database
+│   └── structure.typ       # Logical organization layer; arranges modules via #include
+│
+# 4. Global Configs Layer
+├── configs/                # Global variables, custom functions, and third-party package imports
+│
+# 5. Presentation Layer
+├── main.typ                # Final entry point; applies publisher Show Rules (e.g., #show ethz: ..)
+│
+# 6. Support & Ops Layer
+├── scripts/                # Automation scripts (e.g., converting data to Typst tables)
+└── backups/                # Fault-tolerance: Backups of old versions for collaborators unfamiliar with Git
 ```
 
-### Usage Scenarios
-1.  **Start a New Project:** Clone (`git clone`) the entire repository and start editing the files in the `contents` directory.
-2.  **Switching Templates:**
-    - When you need to submit to a different conference or journal, simply copy the entire `contents` directory to the new template's project.
-    - In the new template's `main.typ` file, import the necessary content using commands like `#import "contents/sections/specific_section.typ"`.
-3.  **Academic Presentations:**
-    - When creating a presentation, you can directly reference existing files in the `figures`, `tables`, or `algorithms` directories without rewriting them.
+
+## 🌟 Core Design Philosophy
+### Convention over Configuration
+By using a preset folder structure, there is no need to write complex path-finding logic in `main.typ`. Simply placing content into the corresponding `modules` allows it to be invoked via standard `#include` or `#import`, significantly reducing configuration costs when migrating between different templates.
+
+### Modular Isolation
+Content in `contents/modules` is neutral:
+- **Short Papers/Conferences**: Module content corresponds directly to `= Section`.
+- **Long Papers/Theses**: Module content corresponds to `= Chapter`.
+Typst’s automatic heading level promotion makes this transition natural and effortless.
+
+### Bridge Layer Design
+This is the essence of the template. `components` acts as the bridge between `assets` and `contents`:
+- **Modification-Friendly**: If an image needs to be changed from `.pdf` to `.svg`, you only need to update the path in the `components` function without touching the core `contents`.
+- **Multi-Invocation**: The same figure component can be referenced simultaneously by the paper (`main.typ`) and a presentation (`slides.typ` via Polylux).
+
+### Collaboration Compatibility
+Acknowledging that not all academic collaborators are proficient with Git, the `backups` folder provides physical storage for modified drafts or Word-exported snippets, ensuring manual fault tolerance during version rollbacks.
 
 
-## Additional Notes
-1.  **References:** Typst natively supports various reference formats like `BibTeX` and `YAML`. You can place your `.bib` or `.yaml` files in the `contents/references` directory.
-2.  **Figures:** It's recommended to create an `original_figures` subdirectory within `figures` to store the original editable files (like `.svg` or `.ai`). This makes future modifications easier. You can include both the image and its caption directly in each figure file and then `#import` it into `main.typ`.
-3.  **Algorithms:** The Typst community provides various algorithm packages, such as `typst-algorithms`. You can choose and adapt them to your needs. My preference is to use LaTeX formulas for wider compatibility; you can use `mitex`, a tool that lets you write LaTeX syntax for equations within Typst files.
+## 💡 Usage Guide
+1.  **Prepare Assets**: Place raw experimental figures/tables into `assets/`.
+2.  **Define Components**: Create Typst functions in `components/` that reference the exported files in `assets/`.
+3.  **Write Content**: Complete the narrative in `contents/modules/`, calling components via labels or functions.
+4.  **Inject into Container**: Assemble the entire paper in `main.typ` using `#include "contents/structure.typ"`.
 
 
-## Other Projects
-For general use, you might consider my other project, [Latex-Academic-Template](https://github.com/yuliu625/Yu-Latex-Academic-Template). This project is based on LaTeX, which is the long-established and widely used standard for academic writing. The LaTeX community is more mature and extensive than Typst's.
+## 🚀 Rapid Submission Workflow
+When switching target journals (e.g., from IEEE to ACM), your workflow requires only two steps:
+1.  **Replace `main.typ` Imports**: Update the `#import "@preview/..."` line to the target journal's package.
+2.  **Redirect Content**: Re-mount your `structure.typ` assets under the new `show` rules.
 
-**Typst** is a more modern and efficient typesetting tool, but its ecosystem is still developing. In contrast, **LaTeX**'s position in academia is still dominant, with much broader community support and adoption.
 
-If you need compatibility between both tools, `pandoc` is a potential solution. While it doesn't currently support direct conversion, tool support in this area is expected to improve in the future. You might need to first convert a file to `html` and then to a `tex` file.
+## 🔗 Related Projects
+For traditional requirements, consider my other project: [Latex-Academic-Template](https://github.com/yuliu625/Yu-Latex-Academic-Template). Built on LaTeX, it remains the long-standing and foreseeable standard for modern academic writing, offering a much larger community and broader support than Typst.
+
+**Typst** is a more modern and efficient typesetting tool, though its ecosystem is still evolving. **LaTeX** remains unshakable in academia, with community support that far exceeds Typst.
+
+If you need compatibility between both tools, `pandoc` is a viable option. While direct conversion isn't perfect yet, tool support is expected to improve. Currently, a common workaround involves converting to `html` first, then to `tex`.
 
