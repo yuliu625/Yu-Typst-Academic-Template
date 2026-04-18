@@ -13,7 +13,7 @@ This project treats paper construction as an automated pipeline, where each laye
 ├── components/             # Transition layer: Wrapping assets into Typst-callable functions/objects
 │   ├── figures/            # Independent code blocks for figure(), caption, and label
 │   ├── tables/             # Table logic (based on tablex or native table)
-│   └── algorithms/         # Wrapped pseudo-code blocks
+│   └── snippets/           # Wrapped pseudo-code blocks
 │
 # 3. Semantic Content Layer
 ├── contents/               # Pure text content, independent of specific layout styles
