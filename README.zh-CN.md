@@ -13,7 +13,7 @@
 ├── components/             # 过渡层：将 Assets 包装为 Typst 可调用的函数/对象
 │   ├── figures/            # 封装 figure(), caption, label 的独立代码块
 │   ├── tables/             # 封装好的表格逻辑（基于 tablex 或原生 table）
-│   └── algorithms/         # 封装好的伪代码块
+│   └── snippets/           # 封装好的伪代码块
 │
 # 3. 语义内容层 (Semantic Contents)
 ├── contents/               # 纯文字内容，不涉及具体的排版样式
