@@ -18,7 +18,7 @@
 # 3. 语义内容层 (Semantic Contents)
 ├── contents/               # 纯文字内容，不涉及具体的排版样式
 │   ├── modules/            # 论文主体章节 (Introduction, Method, etc.)
-│   ├── appendix/           # 附录内容
+│   ├── appendices/         # 附录内容
 │   ├── references/         # 参考文献库
 │   └── structure.typ       # 逻辑组织层，通过 #include 编排各模块
 │
