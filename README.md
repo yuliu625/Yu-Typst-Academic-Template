@@ -18,7 +18,7 @@ This project treats paper construction as an automated pipeline, where each laye
 # 3. Semantic Content Layer
 ├── contents/               # Pure text content, independent of specific layout styles
 │   ├── modules/            # Main paper sections (Introduction, Method, etc.)
-│   ├── appendix/           # Appendix content
+│   ├── appendices/         # Appendix content
 │   ├── references/         # Bibliography/References database
 │   └── structure.typ       # Logical organization layer; arranges modules via #include
 │
