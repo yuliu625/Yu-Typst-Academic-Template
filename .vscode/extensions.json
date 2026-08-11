@@ -1,5 +1,14 @@
+// Yu's Essential VS Code Typst Extension Recommendations
 {
     "recommendations": [
+        // Core Language Support
         "myriad-dreamin.tinymist",
-    ]
+        // Spell, grammar, and academic style checking
+        "streetsidesoftware.code-spell-checker",
+    ],
+    "unwantedRecommendations": [
+        // Deprecated extensions that are no longer maintained or recommended
+        "neo-ltex.ltex",
+    ],
 }
+
